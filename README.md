@@ -1,61 +1,81 @@
-# Mist MCP Skills
+# Mist AI MCP Skills
 
-Skills for LLMs using the [Juniper Mist MCP Server](https://www.juniper.net/documentation/us/en/software/mist/mist-aiops/shared-content/topics/concept/juniper-mist-mcp-claude.html). These skills teach Claude (or other compatible LLMs) how to effectively troubleshoot, analyse, and interact with Juniper Mist AI networks.
+Agent skills for the [Mist AI MCP server](https://github.com/tmunzer/mist-mcp), enabling Claude (and other LLM agents) to answer networking questions using live data from the Juniper Mist Cloud.
 
-## About This Repository
+Each skill follows the [agentskills.io](https://agentskills.io/specification) specification: a `SKILL.md` file with YAML frontmatter for triggering, and optional `references/` for heavy content.
 
-This repository contains skills that extend LLM capabilities when working with the Mist platform through the MCP server. Each skill provides structured workflows, metric references, and step-by-step guidance for specific network operations.
+## Skills
 
-Skills are self-contained folders with a `SKILL.md` file containing instructions and metadata that the LLM follows when the skill is active.
+| Skill | Description | Lines |
+|---|---|---|
+| [mist-sle](mist-sle/SKILL.md) | SLE analysis for wireless, wired, and WAN: org-level site ranking, site drill-down, classifier breakdown, impacted entities | 170 |
+| [mist-device-inventory](mist-device-inventory/SKILL.md) | Device inventory queries: Wi-Fi 7/6E/6 AP detection, firmware audit, vendor filtering, power draw, license checks | 108 |
+| [mist-client-analysis](mist-client-analysis/SKILL.md) | Client usage and bandwidth: app usage, traffic ranking, 6 GHz clients, roaming detection, manufacturer filtering | 134 |
+| [mist-client-troubleshoot](mist-client-troubleshoot/SKILL.md) | Client diagnostics: Marvis AI root cause analysis, session pattern detection, NAC event correlation | 136 |
+| [mist-network-issues](mist-network-issues/SKILL.md) | Alarms, events, and Marvis actions: AP offline/reboot, switch problems, bad cables, rogue APs, NAC failures | 135 |
+| [mist-network-config](mist-network-config/SKILL.md) | Configuration inspection: DHCP, RF templates, 802.11r, auth server timeouts, WLAN changes, config diff | 134 |
+| [mist-switch-port](mist-switch-port/SKILL.md) | Switch port operations: port status, 100 Mbps detection, stack mapping, port profiles, config comparison | 127 |
 
-## Available Skills
+## MCP Tools Used
 
-| Skill | Description |
-|-------|-------------|
-| [mist-client-troubleshoot](./skills/mist-client-troubleshoot) | Marvis AI-powered workflow for diagnosing client connectivity issues (WiFi, wired, WAN) |
-| [mist-sle-wireless](./skills/mist-sle-wireless) | Analyse Wireless SLE metrics: coverage, capacity, time-to-connect, roaming, throughput |
-| [mist-sle-wired](./skills/mist-sle-wired) | Analyse Wired SLE metrics: switch health, throughput, bandwidth, client connectivity |
-| [mist-sle-wan](./skills/mist-sle-wan) | Analyse WAN SLE metrics: gateway health, WAN link quality, application health |
+All skills interact with the Mist Cloud through 7 MCP tools:
 
-## Usage
+| Tool | Purpose |
+|---|---|
+| `get_mist_self` | Discover org_id from the authenticated session |
+| `find_mist_entity` | Search for any entity (client, device, mxedge) by MAC or name |
+| `get_mist_config` | Read configuration objects (sites, WLANs, RF templates, devices, etc.) |
+| `get_mist_constants` | Discover available event types, insight metrics, alarm definitions |
+| `get_mist_insights` | AI analytics: SLE scores, Marvis actions, troubleshoot, insight metrics |
+| `get_mist_stats` | Current-state statistics: devices, ports, wireless clients, sites |
+| `search_mist_data` | Historical search: events, alarms, client sessions, rogue events |
 
-### Claude Desktop
+## Project Structure
 
-1. Configure the [Juniper Mist MCP Server](https://www.juniper.net/documentation/us/en/software/mist/mist-aiops/shared-content/topics/concept/juniper-mist-mcp-claude.html) in your Claude Desktop settings
-2. Add skill files to your conversation by attaching the relevant `SKILL.md` or adding them to your project knowledge
-3. Claude will follow the structured workflows when you ask about client troubleshooting or SLE metrics
-
-### Manual
-
-Copy the relevant `SKILL.md` content into your system prompt or attach it to your conversation context.
-
-## Skill Structure
-
-Each skill follows this format:
-
-```markdown
----
-name: skill-name
-description: >
-  Clear description of when and how to use this skill.
-  Include trigger phrases and keywords.
----
-
-# Skill Title
-
-[Workflow instructions, metric references, examples]
+```
+mistmcp_skills/
+  mist-sle/
+    SKILL.md
+    references/
+      metrics.md              # SLE metrics, classifiers, and fixes
+  mist-device-inventory/
+    SKILL.md
+    references/
+      wifi-models.md           # Wi-Fi standard to AP model mapping
+  mist-client-analysis/
+    SKILL.md
+  mist-client-troubleshoot/
+    SKILL.md
+  mist-network-issues/
+    SKILL.md
+    references/
+      event-types.md           # Alarm, device event, NAC event types
+  mist-network-config/
+    SKILL.md
+  mist-switch-port/
+    SKILL.md
 ```
 
-## Requirements
+## Installation
 
-- [Juniper Mist MCP Server](https://www.juniper.net/documentation/us/en/software/mist/mist-aiops/shared-content/topics/concept/juniper-mist-mcp-claude.html) configured in Claude Desktop
-- Juniper Mist API token with appropriate permissions
-- Claude Desktop with Node.js 18+
+Copy the skill directories into your agent's skill path:
 
-## Disclaimer
+**Claude Code:**
+```bash
+cp -r mist-* ~/.claude/skills/
+```
 
-These skills are provided for demonstration and operational purposes. Always verify recommendations and actions in your specific environment before applying changes to production networks.
+**Custom agent (Claude Agent SDK):**
+Point your agent's skill loader at this directory, or copy individual skill folders into your agent's configured skill path.
+
+## Key Design Decisions
+
+- **Site resolution**: Skills use `search_mist_data(search_type='sites', filters={name:'...'})` to resolve a site by name directly, avoiding a full site list fetch. The full list is only fetched for org-wide queries that need a complete name map.
+- **Pagination**: All list/search calls may return partial results. Skills instruct to check `has_more` and use `next_cursor`.
+- **Versioned metrics**: Skills prefer versioned API endpoints (`switch-health-v2`, `wan-link-health-v2`) over their non-versioned equivalents.
+- **Progressive disclosure**: Heavy reference content (Wi-Fi model tables, event type catalogs, SLE classifier guides) lives in `references/` and is loaded only when needed.
+- **API constraints**: `rogue_events` requires `scope='site'` (no org-wide query). `wireless_client_events` does not support MAC filtering (use `client_sessions` instead).
 
 ## License
 
-Apache 2.0
+Apache 2.0 — see [LICENSE](LICENSE)
