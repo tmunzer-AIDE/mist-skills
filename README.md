@@ -62,7 +62,7 @@ Copy the skill directories into your agent's skill path:
 
 **Claude Code:**
 ```bash
-cp -r mist-* ~/.claude/skills/
+cp -r skills/mist-* ~/.claude/skills/
 ```
 
 **Custom agent (Claude Agent SDK):**
