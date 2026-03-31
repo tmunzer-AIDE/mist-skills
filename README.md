@@ -4,6 +4,19 @@ Agent skills for the [Mist AI MCP server](https://github.com/tmunzer/mist-mcp), 
 
 Each skill follows the [agentskills.io](https://agentskills.io/specification) specification: a `SKILL.md` file with YAML frontmatter for triggering, and optional `references/` for heavy content.
 
+## Compatible AI Applications
+
+These skills use the open [Agent Skills](https://agentskills.io/) standard and work with multiple AI desktop applications:
+
+| Application | Skill Location |
+|-------------|----------------|
+| **Claude Desktop** | `~/.claude/skills/` |
+| **Goose** (Block) | `~/.goose/skills/` |
+| **TRAE** | `~/.trae/skills/` |
+| **Gemini CLI** | `~/.agents/skills/` |
+
+See the full list of compatible tools at [agentskills.io](https://agentskills.io/).
+
 ## Skills
 
 | Skill | Description | Lines |
@@ -60,13 +73,23 @@ mistmcp_skills/
 
 Copy the skill directories into your agent's skill path:
 
-**Claude Code:**
+**Claude Desktop:**
 ```bash
 cp -r skills/mist-* ~/.claude/skills/
 ```
 
-**Custom agent (Claude Agent SDK):**
-Point your agent's skill loader at this directory, or copy individual skill folders into your agent's configured skill path.
+**Goose:**
+```bash
+cp -r skills/mist-* ~/.goose/skills/
+```
+
+**Gemini CLI:**
+```bash
+cp -r skills/mist-* ~/.agents/skills/
+```
+
+**Other tools:**
+Copy skill folders to the appropriate location listed in [Compatible AI Applications](#compatible-ai-applications).
 
 ## Key Design Decisions
 
