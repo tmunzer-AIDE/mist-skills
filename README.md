@@ -14,6 +14,7 @@ These skills use the open [Agent Skills](https://agentskills.io/) standard and w
 | **Goose** (Block) | `~/.goose/skills/` |
 | **TRAE** | `~/.trae/skills/` |
 | **Gemini CLI** | `~/.agents/skills/` |
+| ** GH Copilot** | `~/.copilot/skills/` |
 
 See the full list of compatible tools at [agentskills.io](https://agentskills.io/).
 
