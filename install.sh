@@ -24,7 +24,7 @@ get_app_path() {
 
 get_app_label() {
   case "$1" in
-    claude)  echo "Claude Desktop    (~/.claude/skills)" ;;
+    claude)  echo "Claude Code    (~/.claude/skills)" ;;
     goose)   echo "Goose / Block     (~/.goose/skills)" ;;
     trae)    echo "TRAE              (~/.trae/skills)" ;;
     gemini)  echo "Gemini CLI        (~/.agents/skills)" ;;
@@ -49,17 +49,17 @@ If no option is given, an interactive menu is shown.
 
 Examples:
   $0                      # Interactive menu
-  $0 -a claude            # Install for Claude Desktop
+  $0 -a claude            # Install for Claude Code
   $0 -a goose             # Install for Goose
   $0 -d /path/to/skills   # Install to custom path
-  $0 -u -a claude         # Uninstall from Claude Desktop
+  $0 -u -a claude         # Uninstall from Claude Code
 EOF
 }
 
 list_skills() {
   echo "Available skills:"
   for skill in $SKILLS; do
-    desc=$(sed -n 's/^name: *//p' "$SCRIPT_DIR/$skill/SKILL.md")
+    desc=$(sed -n 's/^name: *//p' "$SCRIPT_DIR/skills/$skill/SKILL.md")
     echo "  $skill"
   done
 }
@@ -69,7 +69,7 @@ install_skills() {
   mkdir -p "$dest"
   local count=0
   for skill in $SKILLS; do
-    local src="$SCRIPT_DIR/$skill"
+    local src="$SCRIPT_DIR/skills/$skill"
     if [ ! -d "$src" ]; then
       echo "  SKIP  $skill (not found)"
       continue
