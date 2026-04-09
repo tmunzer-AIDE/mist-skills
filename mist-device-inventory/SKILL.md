@@ -35,12 +35,18 @@ Enumerate devices, audit firmware, classify Wi-Fi capabilities, and detect hardw
 
 ### Step 2 — Wi-Fi capability queries
 
-Read [references/wifi-models.md](references/wifi-models.md) for the capability-to-model mapping. The MCP does not expose this — you must use the embedded tables.
-
-1. Get all APs: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'ap'}, limit=100)`. Paginate fully.
-2. For each AP, match `model` against the reference tables to classify its Wi-Fi standard.
-3. Filter to the requested capability (Wi-Fi 7, 6GHz, GPS, etc).
-4. Present results grouped by site with model, name, status, and firmware.
+1. Get the current AP model catalog and classify it:
+   ```bash
+   get_mist_constants(constant_type='device_models')
+   ```
+   Save the response JSON to a temp file, then run:
+   ```bash
+   python3 scripts/classify_ap_models.py /tmp/device_models.json
+   ```
+   This filters to APs, classifies each by Wi-Fi standard, and flags unknown models. Check stderr for unclassified model warnings.
+2. Get deployed APs: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'ap'}, limit=100)`. Paginate fully.
+3. Match each deployed AP's `model` against the classified output. Filter to the requested capability (Wi-Fi 7, 6GHz, GPS, etc).
+4. Present results grouped by site with model, Wi-Fi standard, name, status, and firmware.
 
 ### Step 3 — Firmware audit
 
@@ -53,12 +59,10 @@ Read [references/wifi-models.md](references/wifi-models.md) for the capability-t
 
 ### Step 4 — Vendor / compatibility queries
 
-Mist inventory only contains Juniper/Mist devices. Non-Juniper hardware (Cisco, Aruba) will never appear in the inventory.
+Mist inventory only contains Juniper/Mist devices. Non-Juniper hardware (Cisco, Aruba) will never appear.
 
-1. Search inventory: `search_mist_data(scope='org', search_type='inventory', org_id=..., limit=100)`. Paginate.
-2. Check all `model` values — all will be Juniper models (AP*, EX*, QFX*, SRX*, SSR*, etc).
-3. If user asks "are there Cisco switches": report "No — Mist inventory only contains Juniper/Mist-managed devices."
-4. If user asks "can I put [model] in Mist": check against `get_mist_constants(constant_type='device_models')`. If the model appears, it's compatible.
+1. If user asks "are there Cisco switches": report "No — Mist inventory only contains Juniper/Mist-managed devices."
+2. If user asks "can I put [model] in Mist" or "is [model] compatible": check against `get_mist_constants(constant_type='device_models')`. If the model appears, it's compatible. Also report which `type` it maps to (ap, switch, gateway).
 
 ### Step 5 — Power draw stats
 
@@ -103,6 +107,6 @@ For smaller results, a markdown table is fine.
 |---|---|
 | Site name not found | Use `search_mist_data(search_type='sites', filters={name:'...'})` to fuzzy-match |
 | No devices returned | Report "No devices of type X found in the org/site" |
-| Unknown model not in reference table | Report the model as "Unknown Wi-Fi standard" and show raw model string |
+| Model not classified by script | The script flags these on stderr. Report as "unclassified — check Juniper documentation" and show the raw model string |
 | License data unavailable | Direct user to Mist dashboard |
 | Pagination incomplete | Always paginate — partial data leads to wrong conclusions |

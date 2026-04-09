@@ -54,8 +54,8 @@ mistmcp_skills/
       metrics.md              # SLE metrics, classifiers, and fixes
   mist-device-inventory/
     SKILL.md
-    references/
-      wifi-models.md           # Wi-Fi standard to AP model mapping
+    scripts/
+      classify_ap_models.py    # Classifies AP models by Wi-Fi standard
   mist-client-analysis/
     SKILL.md
   mist-client-troubleshoot/
@@ -74,23 +74,13 @@ mistmcp_skills/
 
 Copy the skill directories into your agent's skill path:
 
-**Claude Desktop:**
+**Claude Code:**
 ```bash
-cp -r skills/mist-* ~/.claude/skills/
+cp -r mist-* ~/.claude/skills/
 ```
 
-**Goose:**
-```bash
-cp -r skills/mist-* ~/.goose/skills/
-```
-
-**Gemini CLI:**
-```bash
-cp -r skills/mist-* ~/.agents/skills/
-```
-
-**Other tools:**
-Copy skill folders to the appropriate location listed in [Compatible AI Applications](#compatible-ai-applications).
+**Custom agent (Claude Agent SDK):**
+Point your agent's skill loader at this directory, or copy individual skill folders into your agent's configured skill path.
 
 ## Key Design Decisions
 
