@@ -48,6 +48,7 @@ All skills interact with the Mist Cloud through 7 MCP tools:
 
 ```
 mistmcp_skills/
+  install.sh                   # Installer script for all supported AI apps
   mist-sle/
     SKILL.md
     references/
@@ -74,15 +75,17 @@ mistmcp_skills/
 
 ## Installation
 
-Copy the skill directories into your agent's skill path:
+Run the installer:
 
-**Claude Code:**
 ```bash
-cp -r mist-* ~/.claude/skills/
+./install.sh            # Interactive menu
+./install.sh -a claude  # Install for Claude Desktop
+./install.sh -a goose   # Install for Goose
+./install.sh -d /path   # Install to custom path
+./install.sh -u -a claude  # Uninstall
 ```
 
-**Custom agent (Claude Agent SDK):**
-Point your agent's skill loader at this directory, or copy individual skill folders into your agent's configured skill path.
+Run `./install.sh -h` for all options.
 
 ## Key Design Decisions
 
