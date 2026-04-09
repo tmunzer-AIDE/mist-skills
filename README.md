@@ -54,8 +54,10 @@ mistmcp_skills/
       metrics.md              # SLE metrics, classifiers, and fixes
   mist-device-inventory/
     SKILL.md
-    scripts/
-      classify_ap_models.py    # Classifies AP models by Wi-Fi standard
+    references/
+      ap-capabilities.md       # Wi-Fi standard classification and feature flags
+      switch-models.md         # Switch families, roles, port types, PoE
+      gateway-models.md        # Gateway/router families and roles
   mist-client-analysis/
     SKILL.md
   mist-client-troubleshoot/

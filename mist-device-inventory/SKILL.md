@@ -26,6 +26,8 @@ Enumerate devices, audit firmware, classify Wi-Fi capabilities, and detect hardw
 | User intent | Go to |
 |---|---|
 | Wi-Fi 7 / 6GHz / 6E APs, GPS APs | Step 2 |
+| Switch models, families, port types, PoE | Step 2b |
+| Gateway / router models, SD-WAN, SSR | Step 2c |
 | Firmware versions, outdated firmware, recommended firmware | Step 3 |
 | Cisco switches / non-Juniper devices | Step 4 |
 | Power draw stats | Step 5 |
@@ -35,18 +37,24 @@ Enumerate devices, audit firmware, classify Wi-Fi capabilities, and detect hardw
 
 ### Step 2 — Wi-Fi capability queries
 
-1. Get the current AP model catalog and classify it:
-   ```bash
-   get_mist_constants(constant_type='device_models')
-   ```
-   Save the response JSON to a temp file, then run:
-   ```bash
-   python3 scripts/classify_ap_models.py /tmp/device_models.json
-   ```
-   This filters to APs, classifies each by Wi-Fi standard, and flags unknown models. Check stderr for unclassified model warnings.
-2. Get deployed APs: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'ap'}, limit=100)`. Paginate fully.
-3. Match each deployed AP's `model` against the classified output. Filter to the requested capability (Wi-Fi 7, 6GHz, GPS, etc).
+1. Get all APs: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'ap'}, limit=100)`. Paginate fully.
+2. Classify each AP's `model` using [references/ap-capabilities.md](references/ap-capabilities.md). BT11 is a Bluetooth beacon — exclude from Wi-Fi queries.
+   If a model is not listed, report it as "unclassified — check Juniper documentation."
+3. Filter to the requested capability (Wi-Fi 7, 6GHz, GPS, outdoor, UWB, etc).
 4. Present results grouped by site with model, Wi-Fi standard, name, status, and firmware.
+
+### Step 2b — Switch model queries
+
+1. Get all switches: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'switch'}, limit=100)`. Paginate fully.
+2. Classify each switch using [references/switch-models.md](references/switch-models.md) for family, role, port type, and PoE capability.
+3. For PoE queries: models with P/MP/MUP/MXP/XP suffix support PoE.
+4. Present results grouped by site with model, family, role, name, status, and firmware.
+
+### Step 2c — Gateway / router model queries
+
+1. Get all gateways: `search_mist_data(scope='org', search_type='inventory', org_id=..., filters={device_type:'gateway'}, limit=100)`. For MX routers, also query with `device_type:'router'`. Paginate fully.
+2. Classify using [references/gateway-models.md](references/gateway-models.md) for family and role.
+3. Present results grouped by site with model, family, role, name, status, and firmware.
 
 ### Step 3 — Firmware audit
 
@@ -107,6 +115,6 @@ For smaller results, a markdown table is fine.
 |---|---|
 | Site name not found | Use `search_mist_data(search_type='sites', filters={name:'...'})` to fuzzy-match |
 | No devices returned | Report "No devices of type X found in the org/site" |
-| Model not classified by script | The script flags these on stderr. Report as "unclassified — check Juniper documentation" and show the raw model string |
+| Model not in reference tables | Report as "unclassified — check Juniper documentation" and show the raw model string |
 | License data unavailable | Direct user to Mist dashboard |
 | Pagination incomplete | Always paginate — partial data leads to wrong conclusions |
