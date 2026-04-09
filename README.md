@@ -28,7 +28,7 @@ See the full list of compatible tools at [agentskills.io](https://agentskills.io
 | [mist-client-troubleshoot](mist-client-troubleshoot/SKILL.md) | Client diagnostics: Marvis AI root cause analysis, session pattern detection, NAC event correlation | 136 |
 | [mist-network-issues](mist-network-issues/SKILL.md) | Alarms, events, and Marvis actions: AP offline/reboot, switch problems, bad cables, rogue APs, NAC failures | 135 |
 | [mist-network-config](mist-network-config/SKILL.md) | Configuration inspection: DHCP, RF templates, 802.11r, auth server timeouts, WLAN changes, config diff | 134 |
-| [mist-switch-port](mist-switch-port/SKILL.md) | Switch port operations: port status, 100 Mbps detection, stack mapping, port profiles, config comparison | 127 |
+| [mist-switch-port](mist-switch-port/SKILL.md) | Switch port operations: port status, 100 Mbps detection, stack mapping, port profiles, PoE power draw, config comparison | 164 |
 
 ## MCP Tools Used
 
